@@ -1,0 +1,51 @@
+# TASK 3: Iris Flower Classification
+
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+
+# Load dataset
+data = pd.read_csv("Iris.csv")  # check filename in your dataset
+
+print("First 5 rows of dataset:")
+print(data.head())
+
+# Drop Id column if exists
+if "Id" in data.columns:
+    data = data.drop("Id", axis=1)
+
+# Encode Species column
+le = LabelEncoder()
+data["Species"] = le.fit_transform(data["Species"])
+
+# Features and target
+X = data.drop("Species", axis=1)
+y = data["Species"]
+
+# Train-test split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Train model (Random Forest Classifier)
+model = RandomForestClassifier(n_estimators=100, random_state=42)
+model.fit(X_train, y_train)
+
+# Predictions
+y_pred = model.predict(X_test)
+
+# Evaluation
+print("\nAccuracy:", accuracy_score(y_test, y_pred))
+print("\nClassification Report:\n", classification_report(y_test, y_pred))
+print("\nConfusion Matrix:\n", confusion_matrix(y_test, y_pred))
+
+# Optional: Feature Importance
+feature_importance = pd.DataFrame({
+    'Feature': X.columns,
+    'Importance': model.feature_importances_
+}).sort_values(by="Importance", ascending=False)
+
+print("\nFeature Importance:\n", feature_importance)
